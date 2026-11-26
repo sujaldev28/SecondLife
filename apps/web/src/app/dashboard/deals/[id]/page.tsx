@@ -221,13 +221,12 @@ export default function DealRoomPage() {
                 return (
                   <div
                     key={st.key}
-                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold ${
-                      done
-                        ? 'border-[#34D399]/40 bg-[#34D399]/10 text-[#34D399]'
-                        : current
-                          ? 'border-[#8B5CF6] bg-[#8B5CF6]/15 text-primary-token'
-                          : 'border-token bg-elevated text-muted-token'
-                    }`}
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold ${done
+                      ? 'border-[#34D399]/40 bg-[#34D399]/10 text-[#34D399]'
+                      : current
+                        ? 'border-[#8B5CF6] bg-[#8B5CF6]/15 text-primary-token'
+                        : 'border-token bg-elevated text-muted-token'
+                      }`}
                   >
                     <span className="flex h-5 w-5 items-center justify-center rounded-full border border-current text-[10px]">
                       {done ? <Check className="h-3 w-3" /> : idx + 1}
@@ -260,11 +259,10 @@ export default function DealRoomPage() {
                   return (
                     <div
                       key={m.id}
-                      className={`rounded-xl border p-3.5 text-sm ${
-                        mine
-                          ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/12 text-primary-token'
-                          : 'border-token bg-elevated text-secondary-token'
-                      }`}
+                      className={`rounded-xl border p-3.5 text-sm ${mine
+                        ? 'border-[#8B5CF6]/40 bg-[#8B5CF6]/12 text-primary-token'
+                        : 'border-token bg-elevated text-secondary-token'
+                        }`}
                     >
                       <div className="text-[11px] font-semibold text-muted-token">
                         {mine ? 'You' : 'Counterparty'} • {formatLabel(m.messageType)}

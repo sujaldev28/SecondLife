@@ -112,12 +112,12 @@ export default function OwnerAnalysisPage() {
   const comm = report?.commercialReport;
   const scoreChartData = tech
     ? [
-        { metric: 'Technical', score: tech.technicalScore },
-        { metric: 'Maintainability', score: tech.maintainabilityScore },
-        { metric: 'Security', score: tech.securityScore },
-        { metric: 'Documentation', score: tech.documentationScore },
-        ...(comm ? [{ metric: 'Reusability', score: comm.reusabilityScore }] : []),
-      ]
+      { metric: 'Technical', score: tech.technicalScore },
+      { metric: 'Maintainability', score: tech.maintainabilityScore },
+      { metric: 'Security', score: tech.securityScore },
+      { metric: 'Documentation', score: tech.documentationScore },
+      ...(comm ? [{ metric: 'Reusability', score: comm.reusabilityScore }] : []),
+    ]
     : [];
 
   return (

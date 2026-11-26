@@ -23,7 +23,7 @@ export default function BuyerSavedPage() {
     apiFetch<{ savedAssets: SavedRow[] }>('/saved-assets').then((d) => setRows(d.savedAssets));
 
   useEffect(() => {
-    load().catch(() => {});
+    load().catch(() => { });
   }, []);
 
   const remove = async (assetId: string) => {
