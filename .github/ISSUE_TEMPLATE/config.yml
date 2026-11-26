@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a Security Vulnerability
+    url: https://github.com/sujaldev28/SecondLife/security/advisories/new
+    about: Please report security issues privately (see SECURITY.md) rather than opening a public issue.
+  - name: Live Deployment
+    url: https://secondlife-delta.vercel.app/
+    about: Open the SecondLife web application deployment.
+  - name: Architecture & Product Docs
+    url: https://github.com/sujaldev28/SecondLife/tree/main/docs
+    about: Browse architecture, API, database, security, and deployment guides.

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 440" fill="none">
+  <rect width="1120" height="440" rx="16" fill="#090B14" stroke="#1E293B" stroke-width="1.5"/>
+  <text x="32" y="40" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" fill="#F8FAFC">SecondLife System Architecture (Monorepo + Multi-Service Deployment)</text>
+  <text x="32" y="62" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#94A3B8">Vercel Services (/(.*) → web, /api/(.*) → api, internal binding AI_ANALYZER_URL → ai-analyzer) &amp; Docker Compose</text>
+
+  <!-- Client -->
+  <rect x="32" y="140" width="160" height="140" rx="12" fill="#111827" stroke="#60A5FA"/>
+  <text x="112" y="175" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="14" font-weight="700" fill="#60A5FA">Clients</text>
+  <text x="112" y="202" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#F8FAFC">Owners &amp; Buyers</text>
+  <text x="112" y="222" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#94A3B8">Evaluators</text>
+  <text x="112" y="242" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#94A3B8">Specialists &amp; Admins</text>
+
+  <!-- Web -->
+  <rect x="248" y="96" width="220" height="106" rx="12" fill="#111827" stroke="#8B5CF6"/>
+  <text x="358" y="126" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="14" font-weight="700" fill="#A78BFA">apps/web (Next.js 16)</text>
+  <text x="358" y="148" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#F8FAFC">React 19 · Tailwind v4 · 54 Routes</text>
+  <text x="358" y="170" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#22D3EE">Public Route: /(.*)</text>
+
+  <!-- API -->
+  <rect x="248" y="232" width="260" height="150" rx="12" fill="#111827" stroke="#6366F1"/>
+  <text x="378" y="262" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="14" font-weight="700" fill="#818CF8">apps/api (Express 4 REST v1)</text>
+  <text x="378" y="284" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#F8FAFC">JWT/Cookies · 12-Role RBAC · Drizzle ORM</text>
+  <text x="378" y="304" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#94A3B8">Safe ZIP Guard · SSRF Check · OpenAPI</text>
+  <text x="378" y="328" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#22D3EE">Public Route: /api/(.*)</text>
+  <text x="378" y="352" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#94A3B8">packages/shared (RBAC + 17-State Machine)</text>
+
+  <!-- AI Analyzer -->
+  <rect x="576" y="96" width="256" height="136" rx="12" fill="#111827" stroke="#34D399"/>
+  <text x="704" y="126" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="14" font-weight="700" fill="#34D399">services/ai-analyzer (Internal)</text>
+  <text x="704" y="148" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#F8FAFC">Python 3.12+ FastAPI · Static AST</text>
+  <text x="704" y="168" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#94A3B8">Secrets, JS Sinks &amp; Revival Estimates</text>
+  <text x="704" y="192" text-anchor="middle" font-family="ui-monospace, monospace" font-size="11" fill="#34D399">Binding: AI_ANALYZER_URL + X-Internal-Token</text>
+
+  <!-- Database & Redis -->
+  <rect x="576" y="256" width="256" height="126" rx="12" fill="#111827" stroke="#22D3EE"/>
+  <text x="704" y="286" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="14" font-weight="700" fill="#22D3EE">Persistence Layer</text>
+  <text x="704" y="310" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#F8FAFC">PostgreSQL 16 (Prod) / PGlite (Local)</text>
+  <text x="704" y="330" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#94A3B8">45 Drizzle Tables · SQL Migrations</text>
+  <text x="704" y="352" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#94A3B8">Optional Redis (Docker Compose)</text>
+
+  <!-- External Integrations -->
+  <rect x="888" y="116" width="200" height="244" rx="12" fill="#111827" stroke="#FBBF24" stroke-opacity="0.7"/>
+  <text x="988" y="148" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="14" font-weight="700" fill="#FBBF24">External Providers</text>
+  <text x="988" y="182" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#F8FAFC">Google OAuth 2.0 / OIDC</text>
+  <text x="988" y="200" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#94A3B8">PKCE + RS256 JWKS</text>
+  <text x="988" y="236" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#F8FAFC">GitHub / GitLab / Bitbucket</text>
+  <text x="988" y="254" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#94A3B8">HTTPS + SSRF Guard</text>
+  <text x="988" y="290" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="12" fill="#F8FAFC">Razorpay Orders &amp; Webhooks</text>
+  <text x="988" y="308" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#94A3B8">HMAC-SHA256 Verified</text>
+
+  <!-- Arrows -->
+  <path d="M192 195 L248 150" stroke="#60A5FA" stroke-width="2"/>
+  <path d="M192 225 L248 285" stroke="#60A5FA" stroke-width="2"/>
+  <path d="M358 202 L358 232" stroke="#8B5CF6" stroke-width="2"/>
+  <path d="M508 268 L576 164" stroke="#34D399" stroke-width="2"/>
+  <path d="M508 318 L576 318" stroke="#22D3EE" stroke-width="2"/>
+  <path d="M508 296 L888 238" stroke="#FBBF24" stroke-width="1.5" stroke-dasharray="5 4"/>
+</svg>

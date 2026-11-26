@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 320" fill="none">
+  <rect width="1120" height="320" rx="16" fill="#090B14" stroke="#1E293B" stroke-width="1.5"/>
+  <text x="32" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#F8FAFC">Platform Capabilities Matrix</text>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <rect x="32" y="64" width="248" height="224" rx="12" fill="#111827" stroke="#8B5CF6"/>
+    <text x="52" y="96" font-size="14" font-weight="700" fill="#A78BFA">Discovery &amp; Intake</text>
+    <text x="52" y="128" font-size="12" fill="#F8FAFC">• Asset Registry &amp; Versioning</text>
+    <text x="52" y="152" font-size="12" fill="#F8FAFC">• GitHub / GitLab / Bitbucket</text>
+    <text x="52" y="176" font-size="12" fill="#F8FAFC">• Zip-Slip &amp; Zip-Bomb Guard</text>
+    <text x="52" y="200" font-size="12" fill="#94A3B8">• Inactivity Signal Scanner</text>
+    <text x="52" y="264" font-size="11" font-weight="600" fill="#34D399">STATUS: IMPLEMENTED</text>
+
+    <rect x="300" y="64" width="248" height="224" rx="12" fill="#111827" stroke="#22D3EE"/>
+    <text x="320" y="96" font-size="14" font-weight="700" fill="#22D3EE">Technical &amp; AI Reports</text>
+    <text x="320" y="128" font-size="12" fill="#F8FAFC">• Python AST Inspection</text>
+    <text x="320" y="152" font-size="12" fill="#F8FAFC">• Secret &amp; JS Sink Scanning</text>
+    <text x="320" y="176" font-size="12" fill="#F8FAFC">• Commercial Revival Model</text>
+    <text x="320" y="200" font-size="12" fill="#94A3B8">• ML/LLM Sandbox: Planned</text>
+    <text x="320" y="264" font-size="11" font-weight="600" fill="#34D399">STATUS: STATIC ENGINE LIVE</text>
+
+    <rect x="568" y="64" width="248" height="224" rx="12" fill="#111827" stroke="#34D399"/>
+    <text x="588" y="96" font-size="14" font-weight="700" fill="#34D399">Trust &amp; Governance</text>
+    <text x="588" y="128" font-size="12" fill="#F8FAFC">• Ownership &amp; SPDX Claims</text>
+    <text x="588" y="152" font-size="12" fill="#F8FAFC">• Verification Review Queue</text>
+    <text x="588" y="176" font-size="12" fill="#F8FAFC">• 12-Role RBAC &amp; Audit Logs</text>
+    <text x="588" y="200" font-size="12" fill="#94A3B8">• Disputes &amp; Admin Console</text>
+    <text x="588" y="264" font-size="11" font-weight="600" fill="#34D399">STATUS: IMPLEMENTED</text>
+
+    <rect x="836" y="64" width="252" height="224" rx="12" fill="#111827" stroke="#60A5FA"/>
+    <text x="856" y="96" font-size="14" font-weight="700" fill="#60A5FA">Marketplace &amp; Deals</text>
+    <text x="856" y="128" font-size="12" fill="#F8FAFC">• Search, Compare &amp; Matching</text>
+    <text x="856" y="152" font-size="12" fill="#F8FAFC">• Deal Rooms &amp; Agreements</text>
+    <text x="856" y="176" font-size="12" fill="#F8FAFC">• Razorpay + Manual Settlement</text>
+    <text x="856" y="200" font-size="12" fill="#94A3B8">• Route Splits: Merchant Setup</text>
+    <text x="856" y="264" font-size="11" font-weight="600" fill="#FBBF24">STATUS: CORE LIVE / PARTIAL PAYOUTS</text>
+  </g>
+</svg>

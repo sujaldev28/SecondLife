@@ -6,7 +6,7 @@
    - Short-lived JWT access tokens + rotating SHA-256 hashed refresh tokens stored in `sessions` table with revocation support (`POST /auth/logout`, `DELETE /auth/sessions/:id`, automatic session revocation on password reset).
    - HttpOnly, SameSite=Lax cookies (`COOKIE_SECURE=true` in production HTTPS).
 2. **RBAC & Multi-Tenant Isolation**:
-   - 11 roles mapped to granular permissions in `packages/shared/src/roles.ts`.
+   - 12 roles mapped to granular permissions in `packages/shared/src/roles.ts`.
    - `requireAuth` resolves organization membership from `organization_members` in PostgreSQL; spoofed `x-organization-id` headers are rejected with `403 FORBIDDEN`.
    - Object-level authorization on assets, verification decisions, deal rooms, offers, agreements, and confidential risk findings.
 3. **Untrusted Repository & Archive Hardening**:

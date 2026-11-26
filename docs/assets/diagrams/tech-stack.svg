@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 250" fill="none">
+  <rect width="1120" height="250" rx="16" fill="#090B14" stroke="#1E293B" stroke-width="1.5"/>
+  <text x="32" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#F8FAFC">Verified Technology Stack</text>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <rect x="32" y="62" width="204" height="156" rx="10" fill="#111827" stroke="#1E293B"/>
+    <text x="48" y="88" font-size="13" font-weight="700" fill="#60A5FA">Frontend</text>
+    <text x="48" y="114" font-size="12" fill="#F8FAFC">Next.js 16 (App Router)</text>
+    <text x="48" y="136" font-size="12" fill="#94A3B8">React 19 · TypeScript 5.7</text>
+    <text x="48" y="158" font-size="12" fill="#94A3B8">Tailwind CSS v4</text>
+    <text x="48" y="180" font-size="12" fill="#94A3B8">React Query · Recharts</text>
+
+    <rect x="248" y="62" width="204" height="156" rx="10" fill="#111827" stroke="#1E293B"/>
+    <text x="264" y="88" font-size="13" font-weight="700" fill="#8B5CF6">Backend API</text>
+    <text x="264" y="114" font-size="12" fill="#F8FAFC">Node.js 20+ · Express 4</text>
+    <text x="264" y="136" font-size="12" fill="#94A3B8">Drizzle ORM · Zod · Pino</text>
+    <text x="264" y="158" font-size="12" fill="#94A3B8">Helmet · Rate Limit · CORS</text>
+    <text x="264" y="180" font-size="12" fill="#94A3B8">Swagger OpenAPI 3.0</text>
+
+    <rect x="464" y="62" width="204" height="156" rx="10" fill="#111827" stroke="#1E293B"/>
+    <text x="480" y="88" font-size="13" font-weight="700" fill="#34D399">AI Analyzer</text>
+    <text x="480" y="114" font-size="12" fill="#F8FAFC">Python 3.12+ · FastAPI</text>
+    <text x="480" y="136" font-size="12" fill="#94A3B8">Pydantic · Uvicorn · AST</text>
+    <text x="480" y="158" font-size="12" fill="#94A3B8">scikit-learn · numpy</text>
+    <text x="480" y="180" font-size="12" fill="#94A3B8">pytest 8.3 · HTTPX</text>
+
+    <rect x="680" y="62" width="204" height="156" rx="10" fill="#111827" stroke="#1E293B"/>
+    <text x="696" y="88" font-size="13" font-weight="700" fill="#22D3EE">Data &amp; Security</text>
+    <text x="696" y="114" font-size="12" fill="#F8FAFC">PostgreSQL 16 (pg)</text>
+    <text x="696" y="136" font-size="12" fill="#94A3B8">PGlite (local dev/test)</text>
+    <text x="696" y="158" font-size="12" fill="#94A3B8">JWT · jose (JWKS) · bcrypt</text>
+    <text x="696" y="180" font-size="12" fill="#94A3B8">45 Drizzle Tables</text>
+
+    <rect x="896" y="62" width="192" height="156" rx="10" fill="#111827" stroke="#1E293B"/>
+    <text x="912" y="88" font-size="13" font-weight="700" fill="#FBBF24">Infra &amp; Testing</text>
+    <text x="912" y="114" font-size="12" fill="#F8FAFC">Vercel Multi-Service</text>
+    <text x="912" y="136" font-size="12" fill="#94A3B8">Docker Compose · Redis</text>
+    <text x="912" y="158" font-size="12" fill="#94A3B8">Vitest · Supertest</text>
+    <text x="912" y="180" font-size="12" fill="#94A3B8">React Testing Library</text>
+  </g>
+</svg>
