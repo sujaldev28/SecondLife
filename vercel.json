@@ -5,7 +5,7 @@
       "root": "apps/api",
       "framework": "express",
       "entrypoint": "src/index.ts",
-      "buildCommand": "npm --prefix ../.. --workspace=packages/shared run build && npm run build",
+      "buildCommand": "npm --prefix ../../packages/shared run build && npm run build",
       "bindings": [
         {
           "type": "service",
@@ -18,7 +18,7 @@
     "web": {
       "root": "apps/web",
       "framework": "nextjs",
-      "buildCommand": "npm --prefix ../.. --workspace=packages/shared run build && npm run build"
+      "buildCommand": "npm --prefix ../../packages/shared run build && npm run build"
     },
     "ai-analyzer": {
       "root": "services/ai-analyzer",
