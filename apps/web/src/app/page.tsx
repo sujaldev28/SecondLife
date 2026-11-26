@@ -62,7 +62,7 @@ export default function HomePage() {
   useEffect(() => {
     apiFetch<{ listings: PreviewListing[] }>('/marketplace/listings?limit=3')
       .then((d) => setPreview(d.listings))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
@@ -524,9 +524,8 @@ export default function HomePage() {
                   >
                     <span>{q}</span>
                     <ChevronDown
-                      className={`h-4 w-4 shrink-0 text-muted-token transition-transform ${
-                        isOpen ? 'rotate-180 text-[#8B5CF6]' : ''
-                      }`}
+                      className={`h-4 w-4 shrink-0 text-muted-token transition-transform ${isOpen ? 'rotate-180 text-[#8B5CF6]' : ''
+                        }`}
                     />
                   </button>
                   {isOpen && (

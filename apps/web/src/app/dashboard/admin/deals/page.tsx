@@ -17,7 +17,7 @@ export default function AdminDealsPage() {
   const [deals, setDeals] = useState<DealRow[]>([]);
 
   useEffect(() => {
-    apiFetch<{ deals: DealRow[] }>('/deals').then((d) => setDeals(d.deals)).catch(() => {});
+    apiFetch<{ deals: DealRow[] }>('/deals').then((d) => setDeals(d.deals)).catch(() => { });
   }, []);
 
   return (

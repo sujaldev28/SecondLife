@@ -27,7 +27,7 @@ export default function OwnerTransactionsPage() {
   const [txns, setTxns] = useState<TxnRow[]>([]);
 
   useEffect(() => {
-    apiFetch<{ transactions: TxnRow[] }>('/transactions').then((d) => setTxns(d.transactions)).catch(() => {});
+    apiFetch<{ transactions: TxnRow[] }>('/transactions').then((d) => setTxns(d.transactions)).catch(() => { });
   }, []);
 
   return (
