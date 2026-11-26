@@ -33,9 +33,9 @@ export default function AdminOverviewPage() {
 
   const chartData = metrics
     ? Object.entries(metrics.assetsByStatus).map(([status, count]) => ({
-        status: formatLabel(status),
-        count,
-      }))
+      status: formatLabel(status),
+      count,
+    }))
     : [];
 
   return (
