@@ -1,0 +1,33 @@
+{
+  "name": "secondlife-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SecondLife - AI-Powered Digital Asset Discovery, Technical Evaluation & Commercialization Platform",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm --workspace=apps/api run dev",
+    "dev:web": "npm --workspace=apps/web run dev",
+    "build": "npm --workspace=packages/shared run build && npm --workspace=apps/api run build && npm --workspace=apps/web run build",
+    "test": "npm --workspace=packages/shared run test && npm --workspace=apps/api run test && npm --workspace=apps/web run test",
+    "test:api": "npm --workspace=apps/api run test",
+    "test:web": "npm --workspace=apps/web run test",
+    "db:migrate": "npm --workspace=apps/api run db:migrate",
+    "db:seed": "npm --workspace=apps/api run db:seed",
+    "typecheck": "npm --workspace=packages/shared run typecheck && npm --workspace=apps/api run typecheck && npm --workspace=apps/web run typecheck"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "overrides": {
+    "@types/express": "4.17.21",
+    "@types/express-serve-static-core": "4.19.6"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.21",
+    "@types/express-serve-static-core": "4.19.6"
+  }
+}
