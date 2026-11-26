@@ -32,7 +32,7 @@ export default function BuyerRequirementsPage() {
     apiFetch<{ requirements: Requirement[] }>('/buyer/requirements').then((d) => setReqs(d.requirements));
 
   useEffect(() => {
-    load().catch(() => {});
+    load().catch(() => { });
   }, []);
 
   const createReq = async (e: React.FormEvent) => {

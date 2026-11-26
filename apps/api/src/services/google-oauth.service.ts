@@ -40,7 +40,10 @@ function toBase64Url(buf: Buffer): string {
   return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export async function createGoogleAuthStartUrl(redirectPath?: string): Promise<string> {
+export async function createGoogleAuthStartUrl(
+  redirectPath?: string,
+  redirectUriOverride?: string,
+): Promise<string> {
   if (!isGoogleOAuthConfigured()) {
     throw new BadRequestError('Google OAuth is not configured on this server');
   }
@@ -63,7 +66,7 @@ export async function createGoogleAuthStartUrl(redirectPath?: string): Promise<s
 
   const params = new URLSearchParams({
     client_id: env.GOOGLE_OAUTH_CLIENT_ID,
-    redirect_uri: env.GOOGLE_OAUTH_REDIRECT_URI,
+    redirect_uri: redirectUriOverride || env.GOOGLE_OAUTH_REDIRECT_URI,
     response_type: 'code',
     scope: 'openid email profile',
     state: statePlain,
@@ -106,12 +109,13 @@ export async function consumeOAuthState(statePlain: string) {
 export async function exchangeGoogleCodeForIdToken(
   code: string,
   codeVerifier: string,
+  redirectUriOverride?: string,
 ): Promise<{ idToken: string }> {
   const body = new URLSearchParams({
     code,
     client_id: env.GOOGLE_OAUTH_CLIENT_ID,
     client_secret: env.GOOGLE_OAUTH_CLIENT_SECRET,
-    redirect_uri: env.GOOGLE_OAUTH_REDIRECT_URI,
+    redirect_uri: redirectUriOverride || env.GOOGLE_OAUTH_REDIRECT_URI,
     grant_type: 'authorization_code',
     code_verifier: codeVerifier,
   });

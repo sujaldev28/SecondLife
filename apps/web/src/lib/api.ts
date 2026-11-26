@@ -1,5 +1,23 @@
-export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+function resolveApiBase(): string {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (configured) {
+    return configured.replace(/\/+$/, '');
+  }
+  // Under Vercel Services (deployed or `vercel dev`), `/api/(.*)` routes to the `api` service on the same domain.
+  if (process.env.NEXT_PUBLIC_VERCEL === '1') {
+    return '/api/v1';
+  }
+  if (typeof window !== 'undefined') {
+    const { hostname, port } = window.location;
+    if ((hostname === 'localhost' || hostname === '127.0.0.1') && port === '3000') {
+      return 'http://localhost:4000/api/v1';
+    }
+    return '/api/v1';
+  }
+  return 'http://localhost:4000/api/v1';
+}
+
+export const API_BASE = resolveApiBase();
 
 export function getStoredToken(): string | null {
   if (typeof window === 'undefined') return null;

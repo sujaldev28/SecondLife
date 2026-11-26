@@ -59,13 +59,20 @@ export interface AnalysisOutput {
   };
 }
 
+function buildAiAnalyzerUrl(endpointPath: string): URL {
+  // Prefer Vercel's injected service-binding URL (`AI_ANALYZER_URL`), falling back to `AI_SERVICE_URL` for standalone local dev.
+  const baseUrl = (process.env.AI_ANALYZER_URL || env.AI_SERVICE_URL).trim();
+  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  return new URL(endpointPath.replace(/^\/+/, ''), normalizedBase);
+}
+
 /**
  * Calls the isolated Python FastAPI AI analyzer when reachable; otherwise performs
  * deterministic local static inspection in Node and explicitly labels engineMode & limitations.
  */
 export async function runAssetAnalysisPipeline(payload: AnalysisInputPayload): Promise<AnalysisOutput> {
   try {
-    const resp = await fetch(`${env.AI_SERVICE_URL}/analyze`, {
+    const resp = await fetch(buildAiAnalyzerUrl('analyze'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

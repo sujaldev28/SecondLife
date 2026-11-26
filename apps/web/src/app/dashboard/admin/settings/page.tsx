@@ -28,7 +28,7 @@ export default function AdminSettingsPage() {
     });
 
   useEffect(() => {
-    load().catch(() => {});
+    load().catch(() => { });
   }, []);
 
   const saveCommissions = async (e: React.FormEvent) => {

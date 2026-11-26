@@ -21,7 +21,7 @@ import { errorMiddleware } from './utils/errors.js';
 export function createApp() {
   const app = express();
 
-  if (env.TRUST_PROXY) {
+  if (env.TRUST_PROXY || process.env.VERCEL === '1') {
     app.set('trust proxy', 1);
   }
 
@@ -31,17 +31,39 @@ export function createApp() {
     }),
   );
 
-  const allowedOrigins = env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean);
+  const allowedOrigins = Array.from(
+    new Set(
+      [
+        ...env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean),
+        env.APP_URL,
+        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
+        process.env.VERCEL_PROJECT_PRODUCTION_URL
+          ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+          : '',
+      ].filter(Boolean),
+    ),
+  );
+
+  const isTrustedRequestOrigin = (req: express.Request, origin: string | undefined): boolean => {
+    if (!origin) return true;
+    if (allowedOrigins.includes(origin)) return true;
+    try {
+      const originHost = new URL(origin).host;
+      const requestHost = req.get('x-forwarded-host') || req.get('host');
+      return Boolean(requestHost && originHost === requestHost);
+    } catch {
+      return false;
+    }
+  };
+
   app.use(
-    cors({
-      origin: (origin, cb) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-          cb(null, true);
-        } else {
-          cb(new Error('CORS origin not allowed'));
-        }
-      },
-      credentials: true,
+    cors((req, cb) => {
+      const origin = req.header('origin');
+      if (isTrustedRequestOrigin(req as express.Request, origin)) {
+        cb(null, { origin: true, credentials: true });
+      } else {
+        cb(new Error('CORS origin not allowed'));
+      }
     }),
   );
 
@@ -57,7 +79,7 @@ export function createApp() {
 
     if (unsafeMethod && !isWebhook && usesCookieSession) {
       const origin = req.get('origin');
-      if (origin && !allowedOrigins.includes(origin)) {
+      if (origin && !isTrustedRequestOrigin(req, origin)) {
         res.status(403).json({
           error: { code: 'CSRF_ORIGIN_REJECTED', message: 'Untrusted request origin' },
         });
@@ -95,7 +117,7 @@ export function createApp() {
     );
   }
 
-  app.get('/health', async (_req, res) => {
+  const healthHandler: express.RequestHandler = async (_req, res) => {
     try {
       const db = await getDb();
       await db.execute('SELECT 1');
@@ -103,9 +125,13 @@ export function createApp() {
     } catch (err) {
       res.status(503).json({ status: 'degraded', error: (err as Error).message });
     }
-  });
+  };
+
+  app.get('/health', healthHandler);
+  app.get('/api/health', healthHandler);
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
   app.get('/api/v1/openapi.json', (_req, res) => res.json(openApiSpec));
 
   const apiV1 = express.Router();

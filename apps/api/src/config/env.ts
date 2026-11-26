@@ -5,13 +5,24 @@ import { z } from 'zod';
 dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
 dotenv.config();
 
+const vercelDefaultBaseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : undefined;
+
+const defaultAppUrl = vercelDefaultBaseUrl ?? 'http://localhost:3000';
+const defaultApiUrl = vercelDefaultBaseUrl ?? 'http://localhost:4000';
+const defaultCorsOrigins = vercelDefaultBaseUrl ?? 'http://localhost:3000';
+const defaultGoogleCallbackUrl = `${defaultApiUrl}/api/v1/auth/google/callback`;
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  APP_URL: z.string().url().default('http://localhost:3000'),
-  API_URL: z.string().url().default('http://localhost:4000'),
+  APP_URL: z.string().url().default(defaultAppUrl),
+  API_URL: z.string().url().default(defaultApiUrl),
   AI_SERVICE_URL: z.string().url().default('http://localhost:8000'),
   API_PORT: z.coerce.number().int().min(1).max(65535).default(4000),
-  CORS_ORIGINS: z.string().default('http://localhost:3000'),
+  CORS_ORIGINS: z.string().default(defaultCorsOrigins),
   TRUST_PROXY: z
     .string()
     .transform((v) => v === 'true')
@@ -47,7 +58,7 @@ const envSchema = z.object({
   GOOGLE_OAUTH_REDIRECT_URI: z
     .string()
     .url()
-    .default('http://localhost:4000/api/v1/auth/google/callback'),
+    .default(defaultGoogleCallbackUrl),
   STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
   STORAGE_LOCAL_DIR: z.string().default('./.data/storage'),
   GITHUB_TOKEN: z.string().optional().default(''),
@@ -76,3 +87,41 @@ if (parsed.NODE_ENV === 'production') {
 }
 
 export const env = parsed;
+
+/**
+ * Resolves the public application base URL for email links and OAuth redirects.
+ * Honors explicit `APP_URL` env configuration; otherwise derives from the incoming
+ * Vercel / reverse-proxy host before falling back to `env.APP_URL`.
+ */
+export function resolvePublicAppUrl(req?: {
+  get(name: string): string | undefined;
+  protocol?: string;
+}): string {
+  if (process.env.APP_URL?.trim()) {
+    return env.APP_URL.replace(/\/+$/, '');
+  }
+  const forwardedHost = req?.get('x-forwarded-host')?.split(',')[0]?.trim();
+  const host = forwardedHost || req?.get('host')?.trim();
+  if (host && (process.env.VERCEL === '1' || vercelDefaultBaseUrl)) {
+    const proto = req?.get('x-forwarded-proto')?.split(',')[0]?.trim() || req?.protocol || 'https';
+    return `${proto}://${host}`;
+  }
+  return env.APP_URL.replace(/\/+$/, '');
+}
+
+/**
+ * Resolves the Google OAuth callback URL, honoring explicit `GOOGLE_OAUTH_REDIRECT_URI`
+ * or deriving from the public request origin on Vercel.
+ */
+export function resolveGoogleOAuthRedirectUri(req?: {
+  get(name: string): string | undefined;
+  protocol?: string;
+}): string {
+  if (process.env.GOOGLE_OAUTH_REDIRECT_URI?.trim()) {
+    return env.GOOGLE_OAUTH_REDIRECT_URI;
+  }
+  if (process.env.VERCEL === '1' || vercelDefaultBaseUrl) {
+    return `${resolvePublicAppUrl(req)}/api/v1/auth/google/callback`;
+  }
+  return env.GOOGLE_OAUTH_REDIRECT_URI;
+}

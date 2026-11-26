@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { and, desc, eq, gt, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { loginSchema, registerSchema } from '@secondlife/shared';
-import { env } from '../../config/env.js';
+import { env, resolveGoogleOAuthRedirectUri, resolvePublicAppUrl } from '../../config/env.js';
 import { getDb } from '../../db/client.js';
 import {
   emailTokens,
@@ -385,7 +385,7 @@ authRouter.post(
     await sendEmail({
       to: normalizedEmail,
       subject: 'Verify your SecondLife account',
-      text: `Welcome to SecondLife, ${input.fullName}. Verify your email at ${env.APP_URL}/verify-email?token=${verifyTokenPlain}`,
+      text: `Welcome to SecondLife, ${input.fullName}. Verify your email at ${resolvePublicAppUrl(req)}/verify-email?token=${verifyTokenPlain}`,
     });
 
     await recordAuditLog({
@@ -479,7 +479,7 @@ authRouter.post(
       await sendEmail({
         to: user.email,
         subject: 'Verify your SecondLife account',
-        text: `Verify your email at ${env.APP_URL}/verify-email?token=${plain}`,
+        text: `Verify your email at ${resolvePublicAppUrl(req)}/verify-email?token=${plain}`,
       });
     }
 
@@ -602,6 +602,9 @@ authRouter.get(
     const redirectTo = sanitizeRedirectPath(
       typeof req.query.redirectTo === 'string' ? req.query.redirectTo : undefined,
     );
+    const appUrl = resolvePublicAppUrl(req);
+    const redirectUri = resolveGoogleOAuthRedirectUri(req);
+
     if (!isGoogleOAuthConfigured()) {
       if (req.query.mode === 'json') {
         res.status(503).json({
@@ -612,11 +615,11 @@ authRouter.get(
         });
         return;
       }
-      res.redirect(`${env.APP_URL}/login?oauth_error=google_not_configured`);
+      res.redirect(`${appUrl}/login?oauth_error=google_not_configured`);
       return;
     }
 
-    const authUrl = await createGoogleAuthStartUrl(redirectTo);
+    const authUrl = await createGoogleAuthStartUrl(redirectTo, redirectUri);
     if (req.query.mode === 'json') {
       res.json({ authUrl });
       return;
@@ -629,6 +632,8 @@ authRouter.get(
 authRouter.get(
   '/google/callback',
   asyncHandler(async (req, res) => {
+    const appUrl = resolvePublicAppUrl(req);
+    const redirectUri = resolveGoogleOAuthRedirectUri(req);
     const errorParam = typeof req.query.error === 'string' ? req.query.error : '';
     const stateParam = typeof req.query.state === 'string' ? req.query.state : '';
     const codeParam = typeof req.query.code === 'string' ? req.query.code : '';
@@ -641,18 +646,22 @@ authRouter.get(
         ipAddress: req.ip,
         metadata: { error: errorParam },
       });
-      res.redirect(`${env.APP_URL}/login?oauth_error=${code}`);
+      res.redirect(`${appUrl}/login?oauth_error=${code}`);
       return;
     }
 
     if (!codeParam || !stateParam) {
-      res.redirect(`${env.APP_URL}/login?oauth_error=invalid_callback`);
+      res.redirect(`${appUrl}/login?oauth_error=invalid_callback`);
       return;
     }
 
     try {
       const stateRecord = await consumeOAuthState(stateParam);
-      const { idToken } = await exchangeGoogleCodeForIdToken(codeParam, stateRecord.codeVerifier);
+      const { idToken } = await exchangeGoogleCodeForIdToken(
+        codeParam,
+        stateRecord.codeVerifier,
+        redirectUri,
+      );
       const claims = await verifyGoogleIdToken(idToken, stateRecord.nonce);
       const { user } = await provisionGoogleUserAndSession(claims, req, res);
 
@@ -663,7 +672,7 @@ authRouter.get(
             ? '/dashboard/admin'
             : '/dashboard/owner';
       const safeTarget = sanitizeRedirectPath(stateRecord.redirectPath, fallbackDest);
-      res.redirect(`${env.APP_URL}${safeTarget}`);
+      res.redirect(`${appUrl}${safeTarget}`);
     } catch (err) {
       await recordAuditLog({
         action: 'auth.google_oauth_failed',
@@ -671,7 +680,7 @@ authRouter.get(
         ipAddress: req.ip,
         metadata: { reason: (err as Error).message },
       });
-      res.redirect(`${env.APP_URL}/login?oauth_error=failed`);
+      res.redirect(`${appUrl}/login?oauth_error=failed`);
     }
   }),
 );
@@ -779,7 +788,7 @@ authRouter.post(
       await sendEmail({
         to: user.email,
         subject: 'SecondLife Password Reset',
-        text: `Reset your SecondLife password at ${env.APP_URL}/reset-password?token=${plain}`,
+        text: `Reset your SecondLife password at ${resolvePublicAppUrl(req)}/reset-password?token=${plain}`,
       });
     }
 

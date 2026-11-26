@@ -17,7 +17,7 @@ export default function BuyerNegotiationsPage() {
   const [deals, setDeals] = useState<DealRow[]>([]);
 
   useEffect(() => {
-    apiFetch<{ deals: DealRow[] }>('/deals').then((d) => setDeals(d.deals)).catch(() => {});
+    apiFetch<{ deals: DealRow[] }>('/deals').then((d) => setDeals(d.deals)).catch(() => { });
   }, []);
 
   const active = deals.filter((d) => ['negotiation', 'due_diligence', 'agreement_pending'].includes(d.deal.status));

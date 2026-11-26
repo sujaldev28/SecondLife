@@ -16,7 +16,7 @@ export default function BuyerInquiriesPage() {
   const [rows, setRows] = useState<InquiryRow[]>([]);
 
   useEffect(() => {
-    apiFetch<{ inquiries: InquiryRow[] }>('/inquiries').then((d) => setRows(d.inquiries)).catch(() => {});
+    apiFetch<{ inquiries: InquiryRow[] }>('/inquiries').then((d) => setRows(d.inquiries)).catch(() => { });
   }, []);
 
   return (

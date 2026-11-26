@@ -30,7 +30,7 @@ export default function AdminTransactionsPage() {
     apiFetch<{ transactions: TxnRow[] }>('/transactions').then((d) => setTxns(d.transactions));
 
   useEffect(() => {
-    load().catch(() => {});
+    load().catch(() => { });
   }, []);
 
   const confirmSettlement = async (id: string) => {
