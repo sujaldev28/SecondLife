@@ -60,8 +60,9 @@ export interface AnalysisOutput {
 }
 
 function buildAiAnalyzerUrl(endpointPath: string): URL {
-  // Prefer Vercel's injected service-binding URL (`AI_ANALYZER_URL`), falling back to `AI_SERVICE_URL` for standalone local dev.
-  const baseUrl = (process.env.AI_ANALYZER_URL || env.AI_SERVICE_URL).trim();
+  // Supports full URLs (`https://...` / `http://...`) and Render `hostport` values (`service-name:10000`).
+  const rawBase = (process.env.AI_ANALYZER_URL || env.AI_SERVICE_URL).trim();
+  const baseUrl = /^https?:\/\//i.test(rawBase) ? rawBase : `http://${rawBase}`;
   const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   return new URL(endpointPath.replace(/^\/+/, ''), normalizedBase);
 }

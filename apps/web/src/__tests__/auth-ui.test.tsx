@@ -168,7 +168,12 @@ describe('Sign In Page Demo Credentials & Authentication', () => {
 
 describe('Register Page Confirm Password Validation', () => {
   it('blocks registration when password and confirm password do not match', async () => {
-    const fetchMock = vi.fn();
+    const fetchMock = vi.fn(async (_url: RequestInfo | URL) =>
+      new Response(
+        JSON.stringify({ demoModeEnabled: false, googleOAuthEnabled: false, demoAccounts: [] }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    );
     vi.stubGlobal('fetch', fetchMock);
 
     render(<RegisterPage />);
@@ -183,6 +188,45 @@ describe('Register Page Confirm Password Validation', () => {
     fireEvent.click(screen.getByRole('button', { name: /Create Account/i }));
 
     expect(await screen.findByText('Passwords do not match')).toBeTruthy();
-    expect(fetchMock).not.toHaveBeenCalled();
+    const registerCall = fetchMock.mock.calls.find((c) => String(c[0]).endsWith('/auth/register'));
+    expect(registerCall).toBeUndefined();
+  });
+
+  it('displays demo credentials on signup page when demo mode is enabled and hides them when disabled', async () => {
+    const enabledFetch = vi.fn(async (url: RequestInfo | URL) => {
+      if (String(url).endsWith('/auth/config')) {
+        return new Response(
+          JSON.stringify({
+            demoModeEnabled: true,
+            googleOAuthEnabled: false,
+            demoAccounts: DEMO_ACCOUNTS_FIXTURE.slice(0, 4),
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
+      return new Response('{}', { status: 404 });
+    });
+    vi.stubGlobal('fetch', enabledFetch);
+
+    render(<RegisterPage />);
+    expect(await screen.findByText('Alice Morgan')).toBeTruthy();
+    expect(screen.getByText('alice@demo.secondlife.test')).toBeTruthy();
+
+    cleanup();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({ demoModeEnabled: false, googleOAuthEnabled: false, demoAccounts: [] }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      ),
+    );
+
+    render(<RegisterPage />);
+    await waitFor(() => {
+      expect(screen.queryByText(/Demo Credentials/i)).toBeNull();
+      expect(screen.queryByText('alice@demo.secondlife.test')).toBeNull();
+    });
   });
 });

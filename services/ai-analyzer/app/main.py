@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hmac
 import os
 from typing import Any
 
@@ -10,7 +11,11 @@ from .analyzer import analyze_asset_payload, score_buyer_asset_match
 
 app = FastAPI(title="SecondLife AI Intelligence Service", version="1.0.0")
 
+APP_ENV = os.getenv("APP_ENV", "development").strip().lower()
 INTERNAL_TOKEN = os.getenv("INTERNAL_SERVICE_TOKEN", "dev-internal-ai-service-token")
+
+if APP_ENV == "production" and INTERNAL_TOKEN == "dev-internal-ai-service-token":
+    raise RuntimeError("Production AI analyzer requires a non-default INTERNAL_SERVICE_TOKEN")
 
 
 class AnalyzeRequest(BaseModel):
@@ -28,7 +33,7 @@ class MatchRequest(BaseModel):
 
 
 def _verify_internal_token(token: str | None) -> None:
-    if token != INTERNAL_TOKEN:
+    if not token or not hmac.compare_digest(token, INTERNAL_TOKEN):
         raise HTTPException(status_code=401, detail="Invalid internal service token")
 
 

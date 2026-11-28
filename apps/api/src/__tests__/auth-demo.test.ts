@@ -471,12 +471,25 @@ describe('4. Fictional Demo Accounts, RBAC, Isolation & Repeatable Seed', () => 
 
     // Production default check (NODE_ENV=production without explicit DEMO_MODE_ENABLED=true)
     const prevEnv = env.NODE_ENV;
+    const prevAppEnv = env.APP_ENV;
     env.NODE_ENV = 'production';
-    env.DEMO_MODE_ENABLED = undefined;
+    env.APP_ENV = 'production';
+    env.DEMO_MODE_ENABLED = true; // Even if accidentally set, APP_ENV=production forces demo off
     const prodCfg = await request(app).get('/api/v1/auth/config');
     expect(prodCfg.body.demoModeEnabled).toBe(false);
     expect(prodCfg.body.demoAccounts).toHaveLength(0);
+
+    // Staging/demo check: NODE_ENV=production + APP_ENV=staging + DEMO_MODE_ENABLED=true
+    // exposes non-admin demo accounts only (never platform_admin)
+    env.APP_ENV = 'staging';
+    env.DEMO_MODE_ENABLED = true;
+    const stagingCfg = await request(app).get('/api/v1/auth/config');
+    expect(stagingCfg.body.demoModeEnabled).toBe(true);
+    expect(stagingCfg.body.demoAccounts.some((a: { role: string }) => a.role === 'platform_admin')).toBe(false);
+    expect(stagingCfg.body.demoAccounts.length).toBe(4);
+
     env.NODE_ENV = prevEnv;
+    env.APP_ENV = prevAppEnv;
     env.DEMO_MODE_ENABLED = true;
   });
 });

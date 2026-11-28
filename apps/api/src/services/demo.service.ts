@@ -55,8 +55,26 @@ export const DEMO_ACCOUNTS: readonly DemoAccountDescriptor[] = [
 ] as const;
 
 export function isDemoModeEnabled(): boolean {
+  if (env.APP_ENV === 'production') {
+    return false;
+  }
   if (env.NODE_ENV === 'production') {
     return env.DEMO_MODE_ENABLED === true;
   }
   return env.DEMO_MODE_ENABLED !== false;
+}
+
+/**
+ * Returns demo accounts safe to expose in `/auth/config`.
+ * Never exposes any demo accounts in production, and never exposes a public
+ * `platform_admin` demo account when `NODE_ENV === 'production'`.
+ */
+export function getPublicDemoAccounts(): DemoAccountDescriptor[] {
+  if (!isDemoModeEnabled()) {
+    return [];
+  }
+  if (env.NODE_ENV === 'production') {
+    return DEMO_ACCOUNTS.filter((acc) => acc.role !== 'platform_admin');
+  }
+  return [...DEMO_ACCOUNTS];
 }

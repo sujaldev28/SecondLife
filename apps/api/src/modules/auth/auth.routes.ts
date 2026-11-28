@@ -19,7 +19,7 @@ import {
 } from '../../db/schema.js';
 import { requireAuth } from '../../middleware/auth.js';
 import { recordAuditLog } from '../../services/audit.service.js';
-import { DEMO_ACCOUNTS, isDemoModeEnabled } from '../../services/demo.service.js';
+import { getPublicDemoAccounts, isDemoModeEnabled } from '../../services/demo.service.js';
 import { sendEmail } from '../../services/email.service.js';
 import {
   consumeOAuthState,
@@ -72,16 +72,31 @@ function setAuthCookies(
 ): void {
   res.cookie('sl_access_token', accessToken, {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: env.COOKIE_SAME_SITE,
     secure: env.COOKIE_SECURE,
     maxAge: env.JWT_ACCESS_TTL_SECONDS * 1000,
     path: '/',
   });
   res.cookie('sl_refresh_token', refreshToken, {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: env.COOKIE_SAME_SITE,
     secure: env.COOKIE_SECURE,
     maxAge: env.JWT_REFRESH_TTL_SECONDS * 1000,
+    path: '/api/v1/auth',
+  });
+}
+
+function clearAuthCookies(res: import('express').Response): void {
+  res.clearCookie('sl_access_token', {
+    httpOnly: true,
+    sameSite: env.COOKIE_SAME_SITE,
+    secure: env.COOKIE_SECURE,
+    path: '/',
+  });
+  res.clearCookie('sl_refresh_token', {
+    httpOnly: true,
+    sameSite: env.COOKIE_SAME_SITE,
+    secure: env.COOKIE_SECURE,
     path: '/api/v1/auth',
   });
 }
@@ -277,19 +292,18 @@ authRouter.get(
   '/config',
   asyncHandler(async (_req, res) => {
     const demoEnabled = isDemoModeEnabled();
+    const publicDemoAccounts = getPublicDemoAccounts();
     res.json({
       demoModeEnabled: demoEnabled,
       googleOAuthEnabled: isGoogleOAuthConfigured(),
-      demoAccounts: demoEnabled
-        ? DEMO_ACCOUNTS.map((d) => ({
-            fullName: d.fullName,
-            email: d.email,
-            password: d.password,
-            role: d.role,
-            roleLabel: d.roleLabel,
-            description: d.description,
-          }))
-        : [],
+      demoAccounts: publicDemoAccounts.map((d) => ({
+        fullName: d.fullName,
+        email: d.email,
+        password: d.password,
+        role: d.role,
+        roleLabel: d.roleLabel,
+        description: d.description,
+      })),
     });
   }),
 );
@@ -759,8 +773,7 @@ authRouter.post(
       ipAddress: req.ip,
     });
 
-    res.clearCookie('sl_access_token', { path: '/' });
-    res.clearCookie('sl_refresh_token', { path: '/api/v1/auth' });
+    clearAuthCookies(res);
     res.json({ loggedOut: true });
   }),
 );
@@ -997,8 +1010,7 @@ authRouter.post(
         .set({ revokedAt: new Date() })
         .where(eq(sessions.userId, req.auth!.userId));
     });
-    res.clearCookie('sl_access_token', { path: '/' });
-    res.clearCookie('sl_refresh_token', { path: '/api/v1/auth' });
+    clearAuthCookies(res);
     res.json({ deactivated: true });
   }),
 );

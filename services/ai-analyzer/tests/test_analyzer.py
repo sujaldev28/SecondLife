@@ -1,4 +1,7 @@
+from fastapi.testclient import TestClient
+
 from app.analyzer import analyze_asset_payload, score_buyer_asset_match
+from app.main import INTERNAL_TOKEN, app
 
 
 def test_python_ast_and_secret_detection():
@@ -72,3 +75,29 @@ def test_buyer_asset_matching_explains_reasons_and_gaps():
     assert res["matchScore"] >= 85
     assert len(res["explanation"]["reasons"]) >= 3
     assert res["explanation"]["gaps"] == []
+
+
+def test_fastapi_health_and_internal_token_auth():
+    client = TestClient(app)
+
+    health = client.get("/health")
+    assert health.status_code == 200
+    assert health.json()["status"] == "ok"
+
+    unauth = client.post("/analyze", json={"assetId": "asset-1", "description": "test"})
+    assert unauth.status_code == 401
+
+    wrong = client.post(
+        "/analyze",
+        headers={"X-Internal-Token": "wrong-token"},
+        json={"assetId": "asset-1", "description": "test"},
+    )
+    assert wrong.status_code == 401
+
+    ok = client.post(
+        "/analyze",
+        headers={"X-Internal-Token": INTERNAL_TOKEN},
+        json={"assetId": "asset-1", "description": "A TypeScript utility library."},
+    )
+    assert ok.status_code == 200
+    assert "technicalReport" in ok.json()

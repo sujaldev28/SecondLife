@@ -21,7 +21,7 @@ import { errorMiddleware } from './utils/errors.js';
 export function createApp() {
   const app = express();
 
-  if (env.TRUST_PROXY || process.env.VERCEL === '1') {
+  if (env.TRUST_PROXY || process.env.VERCEL === '1' || process.env.RENDER === 'true') {
     app.set('trust proxy', 1);
   }
 
@@ -36,6 +36,7 @@ export function createApp() {
       [
         ...env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean),
         env.APP_URL,
+        process.env.RENDER_EXTERNAL_URL?.trim() ?? '',
         process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
         process.env.VERCEL_PROJECT_PRODUCTION_URL
           ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`

@@ -11,22 +11,31 @@ const vercelDefaultBaseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_URL}`
     : undefined;
 
+const renderDefaultApiUrl = process.env.RENDER_EXTERNAL_URL?.trim() || undefined;
+
 const defaultAppUrl = vercelDefaultBaseUrl ?? 'http://localhost:3000';
-const defaultApiUrl = vercelDefaultBaseUrl ?? 'http://localhost:4000';
+const defaultApiUrl = renderDefaultApiUrl ?? vercelDefaultBaseUrl ?? 'http://localhost:4000';
 const defaultCorsOrigins = vercelDefaultBaseUrl ?? 'http://localhost:3000';
 const defaultGoogleCallbackUrl = `${defaultApiUrl}/api/v1/auth/google/callback`;
+const defaultPort = process.env.API_PORT || process.env.PORT || '4000';
+const defaultCookieSecure = process.env.COOKIE_SECURE ?? (process.env.NODE_ENV === 'production' ? 'true' : 'false');
+const defaultSameSite =
+  process.env.COOKIE_SAME_SITE ?? (defaultCookieSecure === 'true' ? 'none' : 'lax');
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  APP_ENV: z
+    .enum(['development', 'staging', 'demo', 'test', 'production'])
+    .default((process.env.NODE_ENV as 'development' | 'test' | 'production') || 'development'),
   APP_URL: z.string().url().default(defaultAppUrl),
   API_URL: z.string().url().default(defaultApiUrl),
-  AI_SERVICE_URL: z.string().url().default('http://localhost:8000'),
-  API_PORT: z.coerce.number().int().min(1).max(65535).default(4000),
+  AI_SERVICE_URL: z.string().min(1).default('http://localhost:8000'),
+  API_PORT: z.coerce.number().int().min(1).max(65535).default(Number(defaultPort)),
   CORS_ORIGINS: z.string().default(defaultCorsOrigins),
   TRUST_PROXY: z
     .string()
     .transform((v) => v === 'true')
-    .default('false'),
+    .default(process.env.RENDER === 'true' || process.env.VERCEL === '1' ? 'true' : 'false'),
   DATABASE_URL: z.string().min(1).default('pglite://./.data/pglite'),
   DATABASE_SSL: z
     .string()
@@ -46,7 +55,8 @@ const envSchema = z.object({
   COOKIE_SECURE: z
     .string()
     .transform((v) => v === 'true')
-    .default('false'),
+    .default(defaultCookieSecure),
+  COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default(defaultSameSite as 'lax' | 'strict' | 'none'),
   BCRYPT_ROUNDS: z.coerce.number().int().min(4).max(15).default(10),
   INTERNAL_SERVICE_TOKEN: z.string().default('dev-internal-ai-service-token'),
   DEMO_MODE_ENABLED: z
@@ -84,14 +94,16 @@ if (parsed.NODE_ENV === 'production') {
   ) {
     throw new Error('Production environment requires non-default JWT secrets');
   }
+  if (parsed.APP_ENV === 'production' && parsed.INTERNAL_SERVICE_TOKEN.startsWith('dev-')) {
+    throw new Error('Production environment requires a non-default INTERNAL_SERVICE_TOKEN');
+  }
 }
 
 export const env = parsed;
 
 /**
- * Resolves the public application base URL for email links and OAuth redirects.
- * Honors explicit `APP_URL` env configuration; otherwise derives from the incoming
- * Vercel / reverse-proxy host before falling back to `env.APP_URL`.
+ * Resolves the public frontend application base URL for email links and OAuth redirects.
+ * Honors explicit `APP_URL` env configuration; otherwise derives from Vercel or reverse-proxy host.
  */
 export function resolvePublicAppUrl(req?: {
   get(name: string): string | undefined;
@@ -111,7 +123,7 @@ export function resolvePublicAppUrl(req?: {
 
 /**
  * Resolves the Google OAuth callback URL, honoring explicit `GOOGLE_OAUTH_REDIRECT_URI`
- * or deriving from the public request origin on Vercel.
+ * or deriving from Render/API_URL/request host.
  */
 export function resolveGoogleOAuthRedirectUri(req?: {
   get(name: string): string | undefined;
@@ -120,8 +132,17 @@ export function resolveGoogleOAuthRedirectUri(req?: {
   if (process.env.GOOGLE_OAUTH_REDIRECT_URI?.trim()) {
     return env.GOOGLE_OAUTH_REDIRECT_URI;
   }
-  if (process.env.VERCEL === '1' || vercelDefaultBaseUrl) {
-    return `${resolvePublicAppUrl(req)}/api/v1/auth/google/callback`;
+  if (process.env.API_URL?.trim()) {
+    return `${env.API_URL.replace(/\/+$/, '')}/api/v1/auth/google/callback`;
+  }
+  if (renderDefaultApiUrl) {
+    return `${renderDefaultApiUrl.replace(/\/+$/, '')}/api/v1/auth/google/callback`;
+  }
+  const forwardedHost = req?.get('x-forwarded-host')?.split(',')[0]?.trim();
+  const host = forwardedHost || req?.get('host')?.trim();
+  if (host && (process.env.RENDER === 'true' || process.env.VERCEL === '1')) {
+    const proto = req?.get('x-forwarded-proto')?.split(',')[0]?.trim() || req?.protocol || 'https';
+    return `${proto}://${host}/api/v1/auth/google/callback`;
   }
   return env.GOOGLE_OAUTH_REDIRECT_URI;
 }

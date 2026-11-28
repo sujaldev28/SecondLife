@@ -2,13 +2,28 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/Primitives';
 import { useAuth } from '@/components/AuthContext';
 import { useToast } from '@/components/ToastContext';
 import { API_BASE, apiFetch, setStoredTokens } from '@/lib/api';
+
+interface DemoAccount {
+  fullName: string;
+  email: string;
+  password: string;
+  role: string;
+  roleLabel: string;
+  description: string;
+}
+
+interface AuthConfig {
+  demoModeEnabled: boolean;
+  googleOAuthEnabled: boolean;
+  demoAccounts: DemoAccount[];
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -24,6 +39,13 @@ export default function RegisterPage() {
   const [organizationName, setOrganizationName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [authConfig, setAuthConfig] = useState<AuthConfig | null>(null);
+
+  useEffect(() => {
+    apiFetch<AuthConfig>('/auth/config')
+      .then(setAuthConfig)
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +92,39 @@ export default function RegisterPage() {
 
   const handleGoogleSignUp = () => {
     window.location.href = `${API_BASE}/auth/google/start?redirectTo=/dashboard/owner`;
+  };
+
+  const handleDemoSignIn = async (acc: DemoAccount) => {
+    setError('');
+    setLoading(true);
+    try {
+      const res = await apiFetch<{
+        accessToken: string;
+        refreshToken: string;
+        user: { primaryRole: string; fullName: string };
+      }>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: acc.email, password: acc.password }),
+      });
+      setStoredTokens(res.accessToken, res.refreshToken);
+      await refreshUser();
+      pushToast(`Signed in as ${res.user.fullName}`, 'success');
+      if (
+        res.user.primaryRole === 'super_admin' ||
+        res.user.primaryRole === 'platform_admin' ||
+        res.user.primaryRole === 'verification_specialist'
+      ) {
+        router.push('/dashboard/admin');
+      } else if (res.user.primaryRole === 'buyer') {
+        router.push('/dashboard/buyer');
+      } else {
+        router.push('/dashboard/owner');
+      }
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -208,6 +263,37 @@ export default function RegisterPage() {
               Continue with Google
             </Button>
           </form>
+
+          {authConfig?.demoModeEnabled && authConfig.demoAccounts.length > 0 && (
+            <div className="mt-6 rounded-xl border border-token bg-elevated p-3.5 text-xs">
+              <div className="font-semibold text-primary-token">
+                Demo Credentials (Not Real Customer Accounts)
+              </div>
+              <p className="mt-0.5 text-[11px] text-muted-token">
+                Want to explore first? Click any demo account below to sign in immediately.
+              </p>
+              <div className="mt-2.5 space-y-1.5">
+                {authConfig.demoAccounts.map((acc) => (
+                  <button
+                    key={acc.email}
+                    type="button"
+                    disabled={loading}
+                    onClick={() => handleDemoSignIn(acc)}
+                    className="w-full rounded-lg border border-token bg-surface px-3 py-2 text-left font-medium text-secondary-token transition hover:border-[#8B5CF6]/50 hover:text-primary-token cursor-pointer disabled:opacity-50"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-primary-token">{acc.fullName}</span>
+                      <span className="text-[10px] font-semibold text-[#22D3EE]">{acc.roleLabel}</span>
+                    </div>
+                    <div className="mt-0.5 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] text-muted-token">
+                      <span>{acc.email}</span>
+                      <span>{acc.password}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <p className="mt-5 text-center text-xs text-secondary-token">
             Already registered?{' '}

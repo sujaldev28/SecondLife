@@ -277,9 +277,9 @@ export async function seedDatabase(): Promise<void> {
       .onConflictDoNothing({ target: systemSettings.settingKey });
   }
 
-  // 4. Fictional Demo Accounts & Demo Sample Data (Enabled only when Demo Mode is permitted)
-  if (!isDemoModeEnabled()) {
-    logger.info('Demo mode disabled: skipping demo account & demo asset seeding');
+  // 4. Fictional Demo Accounts & Demo Sample Data (Enabled only when Demo Mode is permitted; never in production)
+  if (env.APP_ENV === 'production' || !isDemoModeEnabled()) {
+    logger.info('Demo mode disabled or production environment: skipping demo account & demo asset seeding');
     return;
   }
 

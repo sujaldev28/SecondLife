@@ -1,43 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "api": {
-      "root": "apps/api",
-      "framework": "express",
-      "entrypoint": "src/index.ts",
-      "buildCommand": "npm --prefix ../../packages/shared run build && npm run build",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "ai-analyzer",
-          "format": "url",
-          "env": "AI_ANALYZER_URL"
-        }
-      ]
-    },
-    "web": {
-      "root": "apps/web",
-      "framework": "nextjs",
-      "buildCommand": "npm --prefix ../../packages/shared run build && npm run build"
-    },
-    "ai-analyzer": {
-      "root": "services/ai-analyzer",
-      "framework": "fastapi",
-      "entrypoint": "app.main:app"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": {
-        "service": "api"
-      }
-    },
-    {
-      "source": "/(.*)",
-      "destination": {
-        "service": "web"
-      }
-    }
-  ]
+  "framework": "nextjs",
+  "installCommand": "npm ci",
+  "buildCommand": "npm --workspace=packages/shared run build && npm --workspace=apps/web run build",
+  "outputDirectory": "apps/web/.next"
 }

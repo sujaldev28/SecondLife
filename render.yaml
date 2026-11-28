@@ -1,0 +1,64 @@
+services:
+  - type: web
+    name: secondlife-api
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm --workspace=packages/shared run build && npm --workspace=apps/api run build
+    startCommand: npm --workspace=apps/api run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAME_SITE
+        value: none
+      - key: DATABASE_SSL
+        value: "true"
+      - key: DEMO_MODE_ENABLED
+        value: "false"
+      - key: AI_ANALYZER_URL
+        fromService:
+          type: web
+          name: secondlife-ai-analyzer
+          property: hostport
+      - key: DATABASE_URL
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: API_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: INTERNAL_SERVICE_TOKEN
+        sync: false
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        sync: false
+      - key: GOOGLE_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_OAUTH_REDIRECT_URI
+        sync: false
+
+  - type: web
+    name: secondlife-ai-analyzer
+    runtime: python
+    plan: starter
+    rootDir: services/ai-analyzer
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: APP_ENV
+        value: production
+      - key: INTERNAL_SERVICE_TOKEN
+        sync: false
