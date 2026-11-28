@@ -34,7 +34,7 @@ export default function OwnerVerificationPage() {
     });
 
   useEffect(() => {
-    loadAssets().catch(() => {});
+    loadAssets().catch(() => { });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

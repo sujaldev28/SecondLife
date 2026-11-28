@@ -26,14 +26,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare shared workspace package
+        run: npm --workspace=packages/shared run build
+
       - name: Typecheck all workspaces
         run: npm run typecheck
 
-      - name: Run JS/TS test suites
-        run: npm test
-
       - name: Build production bundles
         run: npm run build
+
+      - name: Run JS/TS test suites
+        run: npm test
 
   python-ai-analyzer:
     name: Python AI Analyzer Tests (Python 3.12)
