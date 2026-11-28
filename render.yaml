@@ -2,7 +2,7 @@ services:
   - type: web
     name: secondlife-api
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm ci && npm --workspace=packages/shared run build && npm --workspace=apps/api run build
     startCommand: npm --workspace=apps/api run start
     healthCheckPath: /health
@@ -21,11 +21,10 @@ services:
         value: "true"
       - key: DEMO_MODE_ENABLED
         value: "false"
+      # Free web services cannot receive inbound private-network traffic (`hostport`).
+      # Set AI_ANALYZER_URL to the public HTTPS URL of secondlife-ai-analyzer (e.g. https://secondlife-ai-analyzer.onrender.com).
       - key: AI_ANALYZER_URL
-        fromService:
-          type: web
-          name: secondlife-ai-analyzer
-          property: hostport
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: APP_URL
@@ -50,7 +49,7 @@ services:
   - type: web
     name: secondlife-ai-analyzer
     runtime: python
-    plan: starter
+    plan: free
     rootDir: services/ai-analyzer
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
